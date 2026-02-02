@@ -400,16 +400,19 @@ def main():
             if 'features' in locals() and features is not None:
                 fig, axes = plt.subplots(3, 1, figsize=(12, 8))
                 titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
-
+    
                 for i, (ax, title) in enumerate(zip(axes, titles)):
-                    img = ax.imshow(features[0, :, :, i].T, aspect='auto', origin='lower')
+                    # Ensure that features[0, :, :, i] is 2D for plotting
+                    feature_plot = features[0, :, :, i].T if features[0, :, :, i].ndim == 3 else features[0, :, i].T
+                    img = ax.imshow(feature_plot, aspect='auto', origin='lower')
                     ax.set_title(title)
                     ax.set_xlabel('Frame')
                     ax.set_ylabel('MFCC Coefficient')
                     fig.colorbar(img, ax=ax)
-
+    
                 plt.tight_layout()
                 st.pyplot(fig)
+
         else:
             st.info("Upload audio di tab 'Prediksi Aksen' untuk melihat analisis fitur.")
 
