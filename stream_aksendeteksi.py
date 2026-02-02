@@ -405,7 +405,7 @@ def main():
                     feature_plot = features[0, :, i]  # Ambil fitur untuk dimensi ke-3
                     
                     # Plot fitur menggunakan imshow, karena sekarang sudah 2D
-                    img = ax.imshow(feature_plot.T, aspect='auto', origin='lower')
+                    img = ax.imshow(feature_plot.T, aspect='auto', origin='lower', cmap='viridi ')
                     ax.set_title(title)
                     ax.set_xlabel('Frame')
                     ax.set_ylabel('MFCC Coefficient')
