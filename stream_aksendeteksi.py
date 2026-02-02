@@ -397,79 +397,88 @@ def main():
 
             # MFCC features
             with tab2:
-    st.markdown('<h2 class="sub-header">Analisis Fitur Audio</h2>', unsafe_allow_html=True)
+            st.markdown('<h2 class="sub-header">Analisis Fitur Audio</h2>', unsafe_allow_html=True)
     
-    if st.session_state.get('audio_data') is not None:
-        col1, col2 = st.columns(2)
+            if st.session_state.get('audio_data') is not None:
+            col1, col2 = st.columns(2)
         
-        with col1:
-            # Waveform plot
-            fig, ax = plt.subplots(figsize=(10, 4))
-            librosa.display.waveshow(st.session_state.audio_data, 
-                                     sr=st.session_state.sr, ax=ax)
-            ax.set_title('Waveform Audio')
-            ax.set_xlabel('Time (s)')
-            ax.set_ylabel('Amplitude')
-            st.pyplot(fig)
+            with col1:
+                # Waveform plot
+                fig, ax = plt.subplots(figsize=(10, 4))
+                librosa.display.waveshow(st.session_state.audio_data, 
+                                         sr=st.session_state.sr, ax=ax)
+                ax.set_title('Waveform Audio')
+                ax.set_xlabel('Time (s)')
+                ax.set_ylabel('Amplitude')
+                st.pyplot(fig)
+                
+                # Tambahkan info durasi
+                duration = len(st.session_state.audio_data) / st.session_state.sr
+                st.info(f"**Durasi Audio:** {duration:.2f} detik")
             
-            # Tambahkan info durasi
-            duration = len(st.session_state.audio_data) / st.session_state.sr
-            st.info(f"**Durasi Audio:** {duration:.2f} detik")
+            with col2:
+                # Spectrogram
+                fig, ax = plt.subplots(figsize=(10, 4))
+                D = librosa.amplitude_to_db(
+                    np.abs(librosa.stft(st.session_state.audio_data)), 
+                    ref=np.max
+                )
+                img = librosa.display.specshow(D, y_axis='log', 
+                                              x_axis='time', 
+                                              sr=st.session_state.sr, 
+                                              ax=ax)
+                ax.set_title('Spectrogram')
+                fig.colorbar(img, ax=ax, format="%+2.0f dB")
+                st.pyplot(fig)
         
-        with col2:
-            # Spectrogram
-            fig, ax = plt.subplots(figsize=(10, 4))
-            D = librosa.amplitude_to_db(
-                np.abs(librosa.stft(st.session_state.audio_data)), 
-                ref=np.max
-            )
-            img = librosa.display.specshow(D, y_axis='log', 
-                                          x_axis='time', 
-                                          sr=st.session_state.sr, 
-                                          ax=ax)
-            ax.set_title('Spectrogram')
-            fig.colorbar(img, ax=ax, format="%+2.0f dB")
-            st.pyplot(fig)
-        
-        # MFCC features - PERBAIKAN DI SINI
-        if st.session_state.get('audio_features') is not None:
-            st.markdown("### Fitur MFCC")
-            features = st.session_state.audio_features
-            
-            # Ekstrak channel yang berbeda
-            mfcc_data = features[0, :, :, 0]  # MFCC channel
-            delta_data = features[0, :, :, 1]  # Delta channel
-            delta2_data = features[0, :, :, 2]  # Delta-delta channel
-            
-            # Buat subplot untuk setiap channel
-            fig, axes = plt.subplots(3, 1, figsize=(12, 8))
-            titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
-            data_list = [mfcc_data, delta_data, delta2_data]
-            
-            for i, (ax, title, data) in enumerate(zip(axes, titles, data_list)):
-                # Transpose data untuk plotting yang benar
-                img = ax.imshow(data.T,  # Transpose untuk orientasi yang benar
-                               aspect='auto', 
-                               origin='lower',
-                               cmap='viridis')
-                ax.set_title(title)
-                ax.set_xlabel('Frame')
-                ax.set_ylabel('MFCC Coefficient')
-                fig.colorbar(img, ax=ax)
-            
-            plt.tight_layout()
-            st.pyplot(fig)
-            
-            # Tambahkan statistik MFCC
-            with st.expander("📈 Statistik MFCC"):
-                col_stat1, col_stat2, col_stat3 = st.columns(3)
-                with col_stat1:
-                    st.metric("Rata-rata MFCC", f"{np.mean(mfcc_data):.2f}")
-                with col_stat2:
-                    st.metric("Std Dev MFCC", f"{np.std(mfcc_data):.2f}")
-                with col_stat3:
-                    st.metric("Range MFCC", 
-                             f"{np.max(mfcc_data)-np.min(mfcc_data):.2f}")
+            # PERBAIKAN: Pastikan kita menangkap error jika ada
+            try:
+                # Ekstrak channel yang berbeda - pastikan shape benar
+                if len(features.shape) == 4:  # (batch, n_mfcc, time, channel)
+                    mfcc_data = features[0, :, :, 0]  # MFCC channel
+                    delta_data = features[0, :, :, 1]  # Delta channel
+                    delta2_data = features[0, :, :, 2]  # Delta-delta channel
+                elif len(features.shape) == 3:  # (n_mfcc, time, channel)
+                    mfcc_data = features[:, :, 0]
+                    delta_data = features[:, :, 1]
+                    delta2_data = features[:, :, 2]
+                else:
+                    st.error(f"Shape features tidak dikenali: {features.shape}")
+                    st.stop()
+                
+                # Buat subplot untuk setiap channel
+                fig, axes = plt.subplots(3, 1, figsize=(12, 8))
+                titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
+                data_list = [mfcc_data.T, delta_data.T, delta2_data.T]  # Transpose untuk plotting
+                
+                for i, (ax, title, data) in enumerate(zip(axes, titles, data_list)):
+                    img = ax.imshow(data, 
+                                   aspect='auto', 
+                                   origin='lower',
+                                   cmap='viridis')
+                    ax.set_title(title)
+                    ax.set_xlabel('Frame')
+                    ax.set_ylabel('MFCC Coefficient')
+                    fig.colorbar(img, ax=ax)
+                
+                plt.tight_layout()
+                st.pyplot(fig)
+                
+                # Tambahkan statistik MFCC
+                with st.expander("📈 Statistik MFCC"):
+                    col_stat1, col_stat2, col_stat3 = st.columns(3)
+                    with col_stat1:
+                        st.metric("Rata-rata MFCC", f"{np.mean(mfcc_data):.2f}")
+                    with col_stat2:
+                        st.metric("Std Dev MFCC", f"{np.std(mfcc_data):.2f}")
+                    with col_stat3:
+                        st.metric("Range MFCC", 
+                                 f"{np.max(mfcc_data)-np.min(mfcc_data):.2f}")
+                        
+            except Exception as e:
+                st.error(f"Error saat membuat plot MFCC: {str(e)}")
+                st.write(f"Debug info - Shape features: {features.shape}")
+                st.write(f"Debug info - Features type: {type(features)}")
     else:
         st.info("📢 Upload audio di tab 'Prediksi Aksen' untuk melihat analisis fitur.")
         st.image("https://img.icons8.com/color/200/000000/audio-wave.png", 
