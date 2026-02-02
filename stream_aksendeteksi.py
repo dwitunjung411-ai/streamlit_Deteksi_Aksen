@@ -415,10 +415,6 @@ def main():
                 plt.tight_layout()
                 st.pyplot(fig)
 
-
-
-
-
         else:
             st.info("Upload audio di tab 'Prediksi Aksen' untuk melihat analisis fitur.")
 
