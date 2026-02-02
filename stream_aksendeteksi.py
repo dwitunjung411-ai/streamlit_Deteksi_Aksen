@@ -413,7 +413,7 @@ def main():
                     ax.set_title(title)
                     ax.set_xlabel('Frame')
                     ax.set_ylabel('MFCC Coefficient')
-                    fig.colorbar(img, ax
+                    fig.colorbar(img, ax=ax)
                 plt.tight_layout()
                 st.pyplot(fig)
 
