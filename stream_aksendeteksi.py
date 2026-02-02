@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1nyecUSqB51UGioORtV_BILcGHoDTKZli
 """
 
-!pip install streamlit
+pip install streamlit
 !pip install librosa
 !pip install soundfile
 !pip install tensorflow
