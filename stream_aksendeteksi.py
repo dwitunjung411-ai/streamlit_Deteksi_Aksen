@@ -396,7 +396,6 @@ def main():
                 st.pyplot(fig)
 
             # MFCC features
-            with tab2:
             if 'features' in locals() and features is not None:
                 fig, axes = plt.subplots(3, 1, figsize=(12, 8))
                 titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
@@ -414,6 +413,7 @@ def main():
     
                 plt.tight_layout()
                 st.pyplot(fig)
+
 
         else:
             st.info("Upload audio di tab 'Prediksi Aksen' untuk melihat analisis fitur.")
