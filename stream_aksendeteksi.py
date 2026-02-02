@@ -398,26 +398,27 @@ def main():
             # MFCC features
             st.markdown("### Fitur MFCC")
             if 'features' in locals() and features is not None:
-    fig, axes = plt.subplots(3, 1, figsize=(12, 8))
-    titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
+                fig, axes = plt.subplots(3, 1, figsize=(12, 8))
+                titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
     
-    for i, (ax, title) in enumerate(zip(axes, titles)):
-        feature_plot = features[0, :, :, i]
+                for i, (ax, title) in enumerate(zip(axes, titles)):
+                    feature_plot = features[0, :, :, i]
         
-        # Check the number of dimensions
-        if feature_plot.ndim != 2:
-            st.error(f"Unexpected feature shape: {feature_plot.shape}")
-            continue
-        
-        # Plot the feature using imshow
-        img = ax.imshow(feature_plot.T, aspect='auto', origin='lower')
-        ax.set_title(title)
-        ax.set_xlabel('Frame')
-        ax.set_ylabel('MFCC Coefficient')
-        fig.colorbar(img, ax=ax)
+                    # Check the number of dimensions
+                    if feature_plot.ndim != 2:
+                        st.error(f"Unexpected feature shape: {feature_plot.shape}")
+                        continue
+                    
+                    # Plot the feature using imshow
+                    img = ax.imshow(feature_plot.T, aspect='auto', origin='lower')
+                    ax.set_title(title)
+                    ax.set_xlabel('Frame')
+                    ax.set_ylabel('MFCC Coefficient')
+                    fig.colorbar(img, ax=ax)
     
-    plt.tight_layout()
-    st.pyplot(fig)
+                plt.tight_layout()
+                st.pyplot(fig)
+
 
 
         else:
