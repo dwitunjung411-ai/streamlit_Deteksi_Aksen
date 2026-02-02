@@ -402,14 +402,18 @@ def main():
                 titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
     
                 for i, (ax, title) in enumerate(zip(axes, titles)):
-                    # Ensure that features[0, :, :, i] is 2D for plotting
-                    feature_plot = features[0, :, :, i].T if features[0, :, :, i].ndim == 3 else features[0, :, i].T
+                    # Check if features is 4D, which shouldn't happen. If it's 4D, slice it accordingly.
+                    if features.ndim == 4:
+                        feature_plot = features[0, :, :, i].T  # Assuming you want the 2D slice
+                    else:
+                        feature_plot = features[0, :, i].T
+        
+                    # Ensure the feature plot is 2D and ready for imshow
                     img = ax.imshow(feature_plot, aspect='auto', origin='lower')
                     ax.set_title(title)
                     ax.set_xlabel('Frame')
                     ax.set_ylabel('MFCC Coefficient')
-                    fig.colorbar(img, ax=ax)
-    
+                    fig.colorbar(img, ax
                 plt.tight_layout()
                 st.pyplot(fig)
 
