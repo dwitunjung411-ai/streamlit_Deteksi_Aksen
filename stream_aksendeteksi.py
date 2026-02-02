@@ -402,15 +402,17 @@ def main():
                 titles = ['MFCC', 'Delta MFCC', 'Delta-Delta MFCC']
     
                 for i, (ax, title) in enumerate(zip(axes, titles)):
-                    feature_plot = features[0, :, :, i]
-        
-                    # Check the number of dimensions
-                    if feature_plot.ndim != 2:
-                        st.error(f"Unexpected feature shape: {feature_plot.shape}")
+                    # Check if features has 4 dimensions
+                    if features.ndim == 4:
+                        feature_plot = features[0, :, :, i].T
+                    elif features.ndim == 3:
+                        feature_plot = features[0, :, i].T
+                    else:
+                        st.error(f"Unexpected feature shape: {features.shape}")
                         continue
                     
                     # Plot the feature using imshow
-                    img = ax.imshow(feature_plot.T, aspect='auto', origin='lower')
+                    img = ax.imshow(feature_plot, aspect='auto', origin='lower')
                     ax.set_title(title)
                     ax.set_xlabel('Frame')
                     ax.set_ylabel('MFCC Coefficient')
@@ -418,6 +420,7 @@ def main():
     
                 plt.tight_layout()
                 st.pyplot(fig)
+
 
 
 
